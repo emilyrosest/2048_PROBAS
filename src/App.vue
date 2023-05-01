@@ -1,18 +1,20 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <h1>2048</h1>
+    <div class="game">
+      <GridComponent :size="4"></GridComponent>
+    </div>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import GridComponent from './components/GridComponent.vue'
 
 export default {
   name: 'App',
   components: {
-    HelloWorld
-  }
+    GridComponent
+  },
 }
 </script>
 
@@ -24,5 +26,10 @@ export default {
   text-align: center;
   color: #2c3e50;
   margin-top: 60px;
+}
+
+.game {
+  display: flex;
+  justify-content: center;
 }
 </style>
