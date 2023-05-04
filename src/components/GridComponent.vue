@@ -1,56 +1,100 @@
 <template>
   <div class="grid-container">
-    <CellComponent :number="cell.number" v-for="(cell, index) in cellObjects" :key="index"></CellComponent>
-    <div v-if="gameOver" class="game-over">Game Over</div>
+    <CellComponent :number="cell.number" v-for="(cell, index) in cellObjects" :key="index"/>
   </div>
 </template>
 
 <script>
 import CellComponent from './CellComponent.vue';
-import { shuffle, onKeyDown } from '@/services/game.js';
+import {ArrowDown, ArrowLeft, ArrowRight, ArrowUp, checkTurns, shuffle} from '@/services/game.js';
 
 export default {
-    name: "GridComponent",
-    props: {
-      size: {
-        type: Number,
-        default: 4
-      }
-    },
-    components: { CellComponent },
-    data() {
-      return {
-        cells: [],
-        score: 0,
-        //gameOver: false
-      };
-    },
-    created() {
-      this.init();
-      window.addEventListener('keydown', (event) => {
-        onKeyDown(event, this.cells, this.score);
-        this.cells = [...this.cells];
-      });
-    },
-    computed: {
-      cellObjects() {
-        return this.cells.map((number, index) => ({ number, index }));
-      }
-    },
-    methods: {
-      init() {
-        let numberOf2 = 2;
-        let numberOf0 = (this.size * this.size) - numberOf2;
-        let tab = [];
-        for (let i = 0; i < numberOf2; i++) {
-            tab.push(2);
-        }
-        for (let i = 0; i < numberOf0; i++) {
-            tab.push(0);
-        }
-        this.cells = shuffle(tab);
-      },
+  name: "GridComponent",
+  props: {
+    size: {
+      type: Number,
+      default: 4
     }
+  },
+  components: {CellComponent},
+  emits: ['gameOver'],
+  data() {
+    return {
+      cells: [],
+      score: 0,
+      filledCellAtInit: 2,
+      gameOver: false
+    };
+  },
+  created() {
+    this.init();
+    window.addEventListener('keydown', (event) => {
+      this.onKeyDown(event, this.cells, this.score);
+      this.cells = [...this.cells];
+    });
+  },
+  computed: {
+    cellObjects() {
+      return this.cells.map((number, index) => ({number, index}));
+    }
+  },
+  methods: {
+    init() {
+      let numberOfEmpty = (this.size * this.size) - this.filledCellAtInit;
+
+      let tempCells = [];
+      for (let i = 0; i < this.filledCellAtInit; i++) tempCells.push(2);
+      for (let i = 0; i < numberOfEmpty; i++) tempCells.push(0);
+
+      this.cells = shuffle(tempCells);
+    },
+
+    onKeyDown(e, cells, score) {
+      const arrowsNameAndEvents = [
+        {'key': 'ArrowLeft', 'event': ArrowLeft},
+        {'key': 'ArrowRight', 'event': ArrowRight},
+        {'key': 'ArrowDown', 'event': ArrowDown},
+        {'key': 'ArrowUp', 'event': ArrowUp},
+      ];
+
+      arrowsNameAndEvents.forEach((arrow) => {
+        if (e.code.includes(arrow.key)) {
+          let array = [];
+          for (let k = 1; k <= 4; k++) {
+            arrow.event(cells, score, k, array)
+          }
+          this.addCells(cells);
+        }
+      })
+    },
+
+    addCells() {
+      let emptyCells = [];
+      this.cells.forEach((cell, index) => {
+        if (cell === 0) emptyCells.push(index);
+      });
+
+      if (emptyCells.length > 0) {
+        let index = shuffle(emptyCells)[0];
+        this.cells[index] = 2;
+        return;
+      }
+
+      this.checkRemainingTurn();
+    },
+
+    checkRemainingTurn() {
+      let turnLeft = false;
+      for (let i = 0; i < 16; i++) {
+        if (checkTurns(this.cells, i)) {
+          turnLeft = true;
+          break;
+        }
+      }
+      if (!turnLeft)
+        this.$emit('gameOver', true);
+    }
+  }
 }
 </script>
 
@@ -59,9 +103,11 @@ export default {
 h3 {
   margin: 40px 0 0;
 }
+
 a {
   color: #42b983;
 }
+
 .grid-container {
   border-radius: 6px;
   display: flex;

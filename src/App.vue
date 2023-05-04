@@ -1,9 +1,10 @@
 <template>
   <div id="app">
     <h1>2048</h1>
-    <div class="game">
-      <GridComponent :size="4"></GridComponent>
+    <div class="game" v-show="!gameOver">
+      <GridComponent :size="4" @gameOver="handleGameOver"></GridComponent>
     </div>
+    <div v-if="gameOver" class="game-over">Game Over</div>
   </div>
 </template>
 
@@ -14,6 +15,16 @@ export default {
   name: 'App',
   components: {
     GridComponent
+  },
+  data() {
+    return {
+      gameOver: false,
+    };
+  },
+  methods: {
+    handleGameOver() {
+      this.gameOver = true
+    },
   },
 }
 </script>
