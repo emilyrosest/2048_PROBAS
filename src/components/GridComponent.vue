@@ -59,11 +59,16 @@ export default {
 
       arrowsNameAndEvents.forEach((arrow) => {
         if (e.code.includes(arrow.key)) {
+          let cellsBeforeChanges = [...this.cells]
+
           let array = [];
           for (let k = 1; k <= 4; k++) {
             arrow.event(cells, score, k, array)
           }
-          this.addCells(cells);
+
+          // The JSON stringify is used to compare both arrays !
+          if (JSON.stringify(cellsBeforeChanges) !== JSON.stringify([...this.cells]))
+            this.addCells(cells);
         }
       })
     },
