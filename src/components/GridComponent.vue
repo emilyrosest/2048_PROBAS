@@ -1,12 +1,17 @@
 <template>
+  <div>
+    <p v-if="colors">colors</p>
+    <p>{{ pow }}</p>
   <div class="grid-container">
     <CellComponent :number="cell.number" v-for="(cell, index) in cellObjects" :key="index"/>
+  </div>
   </div>
 </template>
 
 <script>
 import CellComponent from './CellComponent.vue';
 import {ArrowDown, ArrowLeft, ArrowRight, ArrowUp, checkTurns, shuffle} from '@/services/game.js';
+import {colorOrNotColor, whichPow, generateRandomTile} from '@/services/probas.js';
 
 export default {
   name: "GridComponent",
@@ -23,11 +28,16 @@ export default {
       cells: [],
       score: 0,
       filledCellAtInit: 2,
-      gameOver: false
+      gameOver: false,
+      colors: true,
+      pow: 0
     };
   },
   created() {
+    this.pow = whichPow();
     this.init();
+    this.colors = colorOrNotColor();
+    console.log(this.colors);
     window.addEventListener('keydown', (event) => {
       this.onKeyDown(event, this.cells, this.score);
       this.cells = [...this.cells];
@@ -43,7 +53,7 @@ export default {
       let numberOfEmpty = (this.size * this.size) - this.filledCellAtInit;
 
       let tempCells = [];
-      for (let i = 0; i < this.filledCellAtInit; i++) tempCells.push(2);
+      for (let i = 0; i < this.filledCellAtInit; i++) tempCells.push(this.pow);
       for (let i = 0; i < numberOfEmpty; i++) tempCells.push(0);
 
       this.cells = shuffle(tempCells);
@@ -81,7 +91,7 @@ export default {
 
       if (emptyCells.length > 0) {
         let index = shuffle(emptyCells)[0];
-        this.cells[index] = 2;
+        this.cells[index] = generateRandomTile(this.pow);
         return;
       }
 
