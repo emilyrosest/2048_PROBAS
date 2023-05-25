@@ -15,7 +15,7 @@ function ArrowLeft(cells, score, k, arr) {
     for (let i = 0; i < 16; i++) {
         let index = i - 1;
         if (k === 3 && index >= 0 && i % 4 !== 0 && cells[i] !== 0 && cells[index] === cells[i] && ![i].includes(arr)) {
-            cells[index] *= cells[i];
+            cells[index] *= 2;
             score +=cells[index];
             cells[i] = 0;
             arr.push(index);
@@ -31,7 +31,7 @@ function ArrowRight(cells, score, k, arr) {
     for (let i = 15; i >= 0; i--) {
         let index = i + 1;
         if (k === 3 && index < 16 && i % 4 !== 3 && cells[i] !== 0 && cells[index] === cells[i] && !arr.includes(i)) {
-            cells[index] *= cells[i];
+            cells[index] *= 2;
             score += cells[index];
             cells[i] = 0;
             arr.push(i);
@@ -47,7 +47,7 @@ function ArrowUp(cells, score, k, arr) {
     for (let i = 0; i < 16; i++) {
         let index = i - 4;
         if (k === 3 && index >= 0 && cells[index] === cells[i] && cells[i] !== 0 && ![i].includes(arr)) {
-            cells[index] *= cells[i];
+            cells[index] *= 2;
             score +=cells[index];
             cells[i] = 0;
         }
@@ -62,7 +62,7 @@ function ArrowDown(cells, score, k, arr) {
     for (let i = 15; i >= 0; i--) {
         let index = i + 4;
         if (k === 3 && index < 16 && cells[i] !== 0 && cells[index] === cells[i] && !arr.includes(i)) {
-            cells[index] *= cells[i];
+            cells[index] *= 2;
             score += cells[index];
             cells[i] = 0;
             arr.push(i);

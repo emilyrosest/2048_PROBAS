@@ -1,7 +1,7 @@
 <template>
   <div>
-    <p v-if="colors">colors</p>
-    <p>{{ pow }}</p>
+  <p v-if="colors == 1">Colors</p>
+  <p>{{ pow }}</p>
   <div class="grid-container">
     <CellComponent :number="cell.number" v-for="(cell, index) in cellObjects" :key="index"/>
   </div>
@@ -11,14 +11,21 @@
 <script>
 import CellComponent from './CellComponent.vue';
 import {ArrowDown, ArrowLeft, ArrowRight, ArrowUp, checkTurns, shuffle} from '@/services/game.js';
-import {colorOrNotColor, whichPow, generateRandomTile} from '@/services/probas.js';
+import {generateRandomTile} from '@/services/probas.js';
 
 export default {
   name: "GridComponent",
   props: {
     size: {
       type: Number,
-      default: 4
+      default: 4,
+    },
+    colors: {
+      type: Boolean,
+      default: false,
+    },
+    pow: {
+      type: Number,
     }
   },
   components: {CellComponent},
@@ -29,15 +36,16 @@ export default {
       score: 0,
       filledCellAtInit: 2,
       gameOver: false,
-      colors: true,
-      pow: 0
     };
   },
+  // watch: {
+  //   pow(newPow) {
+  //     //this.updateGridWithNewPow(newPow);
+  //     this.pow = newPow;
+  //   }
+  // },
   created() {
-    this.pow = whichPow();
     this.init();
-    this.colors = colorOrNotColor();
-    console.log(this.colors);
     window.addEventListener('keydown', (event) => {
       this.onKeyDown(event, this.cells, this.score);
       this.cells = [...this.cells];
@@ -51,7 +59,7 @@ export default {
   methods: {
     init() {
       let numberOfEmpty = (this.size * this.size) - this.filledCellAtInit;
-
+      console.log(this.pow);
       let tempCells = [];
       for (let i = 0; i < this.filledCellAtInit; i++) tempCells.push(this.pow);
       for (let i = 0; i < numberOfEmpty; i++) tempCells.push(0);
@@ -108,6 +116,19 @@ export default {
       }
       if (!turnLeft)
         this.$emit('gameOver', true);
+    },
+    getCellColor(number) {
+      if (this.colors) {
+        // Calcul de la couleur basée sur le nombre
+        const hue = number * 30 % 360; // Variation de teinte en fonction du nombre
+        const saturation = "100%"; // Saturation maximale
+        const lightness = "50%"; // Luminosité fixe
+
+        return `hsl(${hue}, ${saturation}, ${lightness})`;
+      } else {
+        // Pas de couleur si colors est false
+        return "";
+      }
     }
   }
 }

@@ -1,8 +1,9 @@
 <template>
   <div id="app">
-    <h1>2048</h1>
-    <div class="game" v-show="!gameOver">
-      <GridComponent :size="4" @gameOver="handleGameOver"></GridComponent>
+    <h1>2048 Aléatoire</h1>
+    <SettingsComponent v-if="showSettings" @colorsChosen="handleColorsChosen" @powChosen="handlePowChosen" @start="handleStart"></SettingsComponent>
+    <div class="game" v-show="!gameOver && !showSettings">
+      <GridComponent :size="4" :colors="colors" @gameOver="handleGameOver" :pow="pow" :key="pow"></GridComponent>
     </div>
     <div v-if="gameOver" class="game-over">Game Over</div>
   </div>
@@ -10,22 +11,36 @@
 
 <script>
 import GridComponent from './components/GridComponent.vue'
+import SettingsComponent from './components/SettingsComponent.vue'
 
 export default {
   name: 'App',
   components: {
-    GridComponent
+    GridComponent,
+    SettingsComponent
   },
   data() {
     return {
       gameOver: false,
+      showSettings: true,
+      colors: true,
+      pow: 2,
     };
   },
   methods: {
     handleGameOver() {
       this.gameOver = true
     },
-  },
+    handleColorsChosen(chosenColors) {
+      this.colors = chosenColors;
+    },
+    handlePowChosen(chosenPow) {
+      this.pow = chosenPow;
+    },
+    handleStart() {
+      this.showSettings = false;
+    }
+  }
 }
 </script>
 

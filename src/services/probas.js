@@ -1,42 +1,42 @@
 function colorOrNotColor() {
-    // Loi de Bernoulli
-    return Math.random() < 1/2 ? 0 : 1;
+  // Loi de Bernoulli
+  return Math.random() < 1 / 2 ? 0 : 1;
 }
 
 function whichPow() {
-    // Loi uniforme
-    let pow = 0;
-    let result = Math.random();
-    if (result < 0.25)
-        pow = 2;
-    if (result >= 0.25 && result < 0.5)
-        pow = 3;
-    if (result >= 0.5 && result < 0.75)
-        pow = 5;
-    if (result >= 0.75)
-        pow = 10;
-    return pow;
+  // Loi uniforme
+  let pow = 0;
+  let result = Math.random();
+  if (result < 0.25)
+      pow = 2;
+  if (result >= 0.25 && result < 0.5)
+      pow = 3;
+  if (result >= 0.5 && result < 0.75)
+      pow = 5;
+  if (result >= 0.75)
+      pow = 10;
+  return pow;
 }
 
 function generateRandomTileTime(pow, gameTime) {
-  const lambda = 1.0; 
+  const lambda = 1.0;
 
   const probability = lambda * Math.exp(-lambda * gameTime);
 
   if (Math.random() < probability) {
-    return generateRandomTile(pow); 
+    return generateRandomTile(pow);
   } else {
-    return null; 
+    return null;
   }
 }
 
 function generateRandomTile(pow) {
-  const lambda = 1; 
+  const lambda = 1;
 
   const tileOptions = [
-    { value: twoOrFour(pow), probability: poissonProbability(lambda, 0) },
-    { value: Math.pow(pow, 9), probability: poissonProbability(lambda, 1) },
-    { value: Math.pow(pow, 10), probability: poissonProbability(lambda, 2) }
+    { value: 2 * pow, probability: poissonProbability(lambda, 0) },
+    { value: 4 * pow, probability: poissonProbability(lambda, 1) },
+    { value: 8 * pow, probability: poissonProbability(lambda, 2) }
   ];
 
   let totalProbability = 0;
@@ -54,9 +54,8 @@ function generateRandomTile(pow) {
     }
   }
 
-  return twoOrFour(pow);
+  return 2 * pow;
 }
-
 
 function poissonProbability(lambda, k) {
   const numerator = Math.pow(lambda, k) * Math.exp(-lambda);
@@ -64,28 +63,11 @@ function poissonProbability(lambda, k) {
   return numerator / denominator;
 }
 
-
 function factorial(n) {
   if (n === 0 || n === 1) {
     return 1;
   }
   return n * factorial(n - 1);
-}
-
-function twoOrFour(pow) {
-    // Loi géométrique
-    let p = 0.;
-    let count = 0;
-    while (p <= 0.9) {
-        p = Math.random();
-        count ++;
-    }
-    if (count < 4) {
-        return pow*pow;
-    }
-    else {
-        return pow;
-    }
 }
 
 function calculateScoreTime(gameTime) {
@@ -119,5 +101,4 @@ function generateRandomNormal() {
   return u * factor;
 }
 
-
-export { colorOrNotColor, whichPow, twoOrFour, generateRandomTileTime, calculateScoreTime };
+export { colorOrNotColor, whichPow, generateRandomTile, generateRandomTileTime, calculateScoreTime };
