@@ -18,7 +18,17 @@
     },
     computed: {
       cellColor() {
-        return this.colors ? this.$parent.getCellColor(this.number) : {};
+        if (this.colors) {
+          const hue = 180; // Aqua
+          const saturation = "100%";
+          const lightness = 50 + (this.number)*0.2; // Variation de luminosité en fonction du nombre
+
+          return {
+            backgroundColor: `hsl(${hue}, ${saturation}, ${lightness}%)`
+          };
+        } else {
+          return {};
+        }
       }
     },
     methods: {
@@ -27,11 +37,24 @@
           cell: true,
           color: this.colors
         };
+      },
+      getCellColor(number) {
+      if (this.colors) {
+        // Calcul de la couleur basée sur le nombre
+        const hue = number * 30 % 360; // Variation de teinte en fonction du nombre
+        const saturation = "100%"; // Saturation maximale
+        const lightness = "50%"; // Luminosité fixe
+
+        return `hsl(${hue}, ${saturation}, ${lightness})`;
+      } else {
+        // Pas de couleur si colors est false
+        return "";
       }
+    },
     },
     created() {
       if (this.colors) {
-        this.$el.style.backgroundColor = this.cellColor.backgroundColor;
+        this.$el.style.background = 'aqua';
       }
     },
     watch: {
@@ -55,6 +78,6 @@
   }
   
   .color {
-    background-color: transparent;
+    background: transparent;
   }
   </style>

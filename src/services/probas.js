@@ -18,25 +18,43 @@ function whichPow() {
   return pow;
 }
 
+function whichSize(probability) {
+  //Loi géométrique
+  let count = 0;
+  while (Math.random() >= probability) {
+    count++;
+  }
+
+  if (count < 7) {
+    return 4;
+  } else if (count >=7 && count < 9) {
+    return 5;
+  } else {
+    return 3; 
+  }
+}
+
 function generateRandomTileTime(pow, gameTime) {
+  //Loi exmponentielle
   const lambda = 1.0;
 
   const probability = lambda * Math.exp(-lambda * gameTime);
 
   if (Math.random() < probability) {
-    return generateRandomTile(pow);
+    return generateRandomTile(pow * Math.pow(2, 9));
   } else {
-    return null;
+    return generateRandomTile(pow);
   }
 }
 
 function generateRandomTile(pow) {
+  //Loi de Poisson
   const lambda = 1;
 
   const tileOptions = [
-    { value: 2 * pow, probability: poissonProbability(lambda, 0) },
-    { value: 4 * pow, probability: poissonProbability(lambda, 1) },
-    { value: 8 * pow, probability: poissonProbability(lambda, 2) }
+    { value: pow, probability: poissonProbability(lambda, 0) },
+    { value: 2 * pow, probability: poissonProbability(lambda, 1) },
+    { value: 4 * pow, probability: poissonProbability(lambda, 2) }
   ];
 
   let totalProbability = 0;
@@ -70,35 +88,86 @@ function factorial(n) {
   return n * factorial(n - 1);
 }
 
-function calculateScoreTime(gameTime) {
-  const mu0 = 10.0; // Moyenne initiale de la distribution normale
-  const sigma0 = 2.0; // Écart type initial de la distribution normale
-  const timeFactor = 0.1; // Facteur d'ajustement du temps de jeu
+function generateRandomTileTime2048(pow, gameTime) {
+  //Loi normale
+  const mean = 100; 
+  const standardDeviation = 20;
 
-  // Calcul d'un score aléatoire en fonction du temps de jeu
-  const mu = mu0 + timeFactor * gameTime; // Nouvelle moyenne en fonction du temps de jeu
-  const sigma = sigma0; // Écart type inchangé
+  const probability = normalDistribution(gameTime, mean, standardDeviation);
 
-  const score = Math.round(mu + sigma * generateRandomNormal());
-
-  return score;
+  if (Math.random() < probability) {
+    return generateRandomTile(pow * Math.pow(2, 9));
+  } else {
+    return generateRandomTile(pow);
+  }
 }
 
-// Fonction pour générer un nombre aléatoire selon une distribution normale standard (moyenne 0, écart type 1)
-function generateRandomNormal() {
-  let u = 0.0;
-  let v = 0.0;
-  let w = 0.0;
-
-  do {
-    u = Math.random() * 2 - 1;
-    v = Math.random() * 2 - 1;
-    w = u * u + v * v;
-  } while (w === 0 || w >= 1);
-
-  const factor = Math.sqrt((-2 * Math.log(w)) / w);
-
-  return u * factor;
+function normalDistribution(x, mean, standardDeviation) {
+  const exponent = -((x - mean) ** 2) / (2 * standardDeviation ** 2);
+  const coefficient = 1 / (Math.sqrt(2 * Math.PI) * standardDeviation);
+  return coefficient * Math.exp(exponent);
 }
 
-export { colorOrNotColor, whichPow, generateRandomTile, generateRandomTileTime, calculateScoreTime };
+
+const markovChain = [
+  [0.6, 0.3, 0.1], 
+  [0.1, 0.5, 0.4],   
+  [0.1, 0.2, 0.7]   
+];
+
+function generateRandomTileMarkov(pow, currentState) {
+  // Chaîne de Markov
+  const stateIndex = (currentState / pow); 
+  let markovIndex = 0;
+  if (stateIndex == 2) {
+    markovIndex = 1;
+  }
+  if (stateIndex == 4) {
+    markovIndex = 2;
+  }
+
+  const transitionProbabilities = markovChain[markovIndex];
+  const nextStateIndex = selectNextState(transitionProbabilities);
+  const nextState = Math.pow(2, nextStateIndex) * pow; 
+
+  return nextState;
+}
+
+function selectNextState(transitionProbabilities) {
+  const randomNumber = Math.random();
+  let cumulativeProbability = 0;
+
+  for (let nextState = 0; nextState < 3; nextState++) {
+    cumulativeProbability += transitionProbabilities[nextState];
+    if (randomNumber <= cumulativeProbability) {
+      return nextState;
+    }
+  }
+  return 0; 
+}
+
+function collectMarkovStatistics() {
+  const markovStats = {};
+
+  for (let stateIndex = 0; stateIndex < markovChain.length; stateIndex++) {
+    const transitionProbabilities = markovChain[stateIndex];
+    const sumProbabilities = transitionProbabilities.reduce((sum, prob) => sum + prob, 0);
+    const currentState = Math.pow(2, stateIndex + 1);
+    markovStats[currentState] = sumProbabilities;
+  }
+
+  return markovStats;
+}
+
+
+function displayMarkovStatistics() {
+  const markovStats = collectMarkovStatistics();
+
+  console.log('Markov Chain Statistics:');
+  for (const state in markovStats) {
+    console.log(`State ${state}: Sum of Outgoing Probabilities = ${markovStats[state]}`);
+  }
+}
+
+
+export { colorOrNotColor, whichPow, whichSize, generateRandomTile, generateRandomTileTime, generateRandomTileTime2048, generateRandomTileMarkov, collectMarkovStatistics, displayMarkovStatistics };

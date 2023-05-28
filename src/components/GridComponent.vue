@@ -1,17 +1,22 @@
 <template>
   <div>
-  <p v-if="colors == 1">Colors</p>
-  <p>{{ pow }}</p>
+  <p v-if="colors == true">With colors</p>
+  <p v-if="colors == false">Without colors</p>
+  <p>Number : {{ pow }}</p>
+  <p>Size : {{size}}</p>
+  <p>GameTime : {{gameTime}}</p>
   <div class="grid-container">
-    <CellComponent :number="cell.number" v-for="(cell, index) in cellObjects" :key="index"/>
+    <CellComponent :number="cell.number" v-for="(cell, index) in cellObjects" :key="index" :colors="colors"/>
   </div>
+  <p>Added Tile : {{ addedTile }}</p>
+  <p>Game State : {{ gameState }}</p>
   </div>
 </template>
 
 <script>
 import CellComponent from './CellComponent.vue';
 import {ArrowDown, ArrowLeft, ArrowRight, ArrowUp, checkTurns, shuffle} from '@/services/game.js';
-import {generateRandomTile} from '@/services/probas.js';
+import {generateRandomTileTime, generateRandomTileTime2048, generateRandomTileMarkov} from '@/services/probas.js';
 
 export default {
   name: "GridComponent",
@@ -36,29 +41,32 @@ export default {
       score: 0,
       filledCellAtInit: 2,
       gameOver: false,
+      gameTime: 0,
+      currentState: 2,
+      addedTile: null,
+      gameState: null,
     };
   },
-  // watch: {
-  //   pow(newPow) {
-  //     //this.updateGridWithNewPow(newPow);
-  //     this.pow = newPow;
-  //   }
-  // },
   created() {
     this.init();
+    this.currentState = this.pow;
     window.addEventListener('keydown', (event) => {
       this.onKeyDown(event, this.cells, this.score);
       this.cells = [...this.cells];
     });
+
+    setInterval(() => {
+      this.gameTime++;
+    }, 1000);
   },
   computed: {
     cellObjects() {
       return this.cells.map((number, index) => ({number, index}));
-    }
+    },
   },
   methods: {
     init() {
-      let numberOfEmpty = (this.size * this.size) - this.filledCellAtInit;
+      let numberOfEmpty = (16) - this.filledCellAtInit;
       console.log(this.pow);
       let tempCells = [];
       for (let i = 0; i < this.filledCellAtInit; i++) tempCells.push(this.pow);
@@ -95,13 +103,32 @@ export default {
       let emptyCells = [];
       this.cells.forEach((cell, index) => {
         if (cell === 0) emptyCells.push(index);
+        else if (cell === (this.pow * Math.pow(2, 10))) {
+          this.gameState = 3;
+        }
+        else if (cell === (this.pow * Math.pow(2, 8))) {
+          this.gameState = 2;
+        } else {
+          this.gameState = 1;
+        }
       });
 
       if (emptyCells.length > 0) {
         let index = shuffle(emptyCells)[0];
-        this.cells[index] = generateRandomTile(this.pow);
+
+        if (this.gameState === 3) {
+          this.cells[index] = generateRandomTileTime2048(this.pow, this.gameTime);
+        } else if (this.gameState === 2){
+          this.cells[index] = generateRandomTileTime(this.pow, this.gameTime);
+        } else {
+          this.cells[index] = generateRandomTileMarkov(this.pow, this.currentState);
+        }
+
+        this.currentState = this.cells[index];  
+        this.addedTile = this.cells[index];
+
         return;
-      }
+      } 
 
       this.checkRemainingTurn();
     },
@@ -117,19 +144,6 @@ export default {
       if (!turnLeft)
         this.$emit('gameOver', true);
     },
-    getCellColor(number) {
-      if (this.colors) {
-        // Calcul de la couleur basée sur le nombre
-        const hue = number * 30 % 360; // Variation de teinte en fonction du nombre
-        const saturation = "100%"; // Saturation maximale
-        const lightness = "50%"; // Luminosité fixe
-
-        return `hsl(${hue}, ${saturation}, ${lightness})`;
-      } else {
-        // Pas de couleur si colors est false
-        return "";
-      }
-    }
   }
 }
 </script>
