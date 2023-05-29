@@ -19,9 +19,9 @@
     computed: {
       cellColor() {
         if (this.colors) {
-          const hue = 180; // Aqua
+          const hue = 180; 
           const saturation = "100%";
-          const lightness = 50 + (this.number)*0.2; // Variation de luminosité en fonction du nombre
+          const lightness = 50 + (this.number)*0.2; 
 
           return {
             backgroundColor: `hsl(${hue}, ${saturation}, ${lightness}%)`
@@ -40,14 +40,13 @@
       },
       getCellColor(number) {
       if (this.colors) {
-        // Calcul de la couleur basée sur le nombre
-        const hue = number * 30 % 360; // Variation de teinte en fonction du nombre
-        const saturation = "100%"; // Saturation maximale
-        const lightness = "50%"; // Luminosité fixe
+      
+        const hue = number * 30 % 360; 
+        const saturation = "100%";
+        const lightness = "50%"; 
 
         return `hsl(${hue}, ${saturation}, ${lightness})`;
       } else {
-        // Pas de couleur si colors est false
         return "";
       }
     },

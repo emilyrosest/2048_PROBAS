@@ -19,23 +19,31 @@ function whichPow() {
 }
 
 function whichSize(probability) {
-  //Loi géométrique
+  // Loi géométrique 
   let count = 0;
   while (Math.random() >= probability) {
     count++;
   }
 
-  if (count < 7) {
+  if (count < 3) {
     return 4;
-  } else if (count >=7 && count < 9) {
-    return 5;
   } else {
-    return 3; 
+    return 5; 
   }
 }
 
+function calculateProbability(probability) {
+  const complementProbability = 1 - probability;
+  
+  const probability5 = probability * Math.pow(complementProbability, 2);
+
+  //const probability4 = 1 - probability5;
+  
+  return probability5;
+}
+
 function generateRandomTileTime(pow, gameTime) {
-  //Loi exmponentielle
+  //Loi exponentielle
   const lambda = 1.0;
 
   const probability = lambda * Math.exp(-lambda * gameTime);
@@ -170,4 +178,4 @@ function displayMarkovStatistics() {
 }
 
 
-export { colorOrNotColor, whichPow, whichSize, generateRandomTile, generateRandomTileTime, generateRandomTileTime2048, generateRandomTileMarkov, collectMarkovStatistics, displayMarkovStatistics };
+export { colorOrNotColor, whichPow, whichSize, calculateProbability, generateRandomTile, generateRandomTileTime, generateRandomTileTime2048, generateRandomTileMarkov, collectMarkovStatistics, displayMarkovStatistics };

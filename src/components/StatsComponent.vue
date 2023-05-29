@@ -3,7 +3,6 @@
       <h3>Statistiques de la Chaîne de Markov</h3>
       <p>Probabilité de changer d'état : {{ sumOutgoingProbabilities }}</p>
       <p>Probabilité moyenne de transition : {{ averageProbability }}</p>
-      <p>Ecart par rapport à la probabilité moyenne : {{ averageDeviation }}</p>
     </div>
   </template>
   
